@@ -2,6 +2,10 @@
 // Gerado pelo Workr Lite CMS — não editar manualmente.
 export const siteConfig = {
 
+  // Ligado via Painel de Controle (super_admin) — quando true, page.js
+  // mostra só uma tela de aviso e não inicializa o resto do site.
+  maintenance: false,
+
   company: {
     name:        "Fullwood Teste",
     nameShort:   "Fullwood Teste",
@@ -26,64 +30,77 @@ export const siteConfig = {
   ticker: {
     type:      "iframe",
     iframeUrl: "",
-    items: [],
+    items: [
+      { symbol: 'WRLT3', price: 'R$ 00,00', change: '0,00%', direction: 'up' }
+    ],
   },
 
   nav: [
-    { id: "docs-cvm", label: "Documentos CVM", href: "/documentos-cvm.html", children: [] },
-    { id: "central-resultados", label: "Estatutos, Políticas e Códigos", href: "/central-resultados.html", children: [] },
-    { id: "atas-assembleias", label: "Atas e Assembleias", href: "/atas-assembleias.html", children: [] },
-    { id: "p3qvhye", label: "Demonstrações Financeiras", href: "/xn03fdi.html", children: [] },
-    { id: "fale-ri", label: "Fale com RI", href: "/fale-com-ri.html", children: [] },
+    { id: "docs-cvm", label: "Documentos CVM", labels: {"pt-BR":"Documentos CVM"}, href: "/documentos-cvm.html", pageType: "lista", children: [] },
+    { id: "central-resultados", label: "Estatutos, Políticas e Códigos", labels: {"pt-BR":"Estatutos, Políticas e Códigos"}, href: "/central-resultados.html", pageType: "lista-agrupada", children: [] },
+    { id: "atas-assembleias", label: "Atas e Assembleias", labels: {"pt-BR":"Atas e Assembleias"}, href: "/atas-assembleias.html", pageType: "lista-agrupada", children: [] },
+    { id: "p3qvhye", label: "Demonstrações Financeiras", labels: {"pt-BR":"Demonstrações Financeiras"}, href: "/xn03fdi.html", pageType: "lista", children: [] },
+    { id: "fale-ri", label: "Fale com RI", labels: {"pt-BR":"Fale com RI"}, href: "/fale-com-ri.html", pageType: "formulario", children: [] },
   ],
 
   empresas: [
-    { id: 'principal', label: "Fullwood Teste", short: 'FT' },
+    { id: "principal-1784982293516", label: "Fullwood Galpões", short: "FG" }
   ],
 
-  supabase: {
-    url:      "https://mmhuwlpsgnvoxyuofliq.supabase.co",
-    anonKey:  "sb_publishable_BBSPbQc2kZngiK45ecfXaA_X4NANiGj",
-    portalId: "8df35d59-7b37-4134-8e68-8d8764443b62",
-  },
-
   header: { variant: 'tabmenu' },
-
-  seo: {
-    title:             "Fullwood galpões",
-    description:       "",
-    googleAnalyticsId: "",
-    clarityId:         "",
-  },
-
-  contact: {
-    email: "",
-  },
 
   languages: ["pt-BR","en"],
 
   topbar: {
-    ri: { label: 'Relações com Investidores', url: '/' },
-    institucional: { label: 'Institucional', url: '#' },
+    ri: { label: "Relações com Investidores", url: "/" },
+    institucional: { label: "Institucional", url: "#" },
     showTicker: true,
   },
 
   restrictedNav: [],
 
   footer: {
-    variant:   'simple',
-    address:   "",
-    email:     "",
-    phone:     "",
-    hours:     "",
-    copyright: "©Copyright Fullwood Teste 2026",
+    variant: 'simple',
+    email: "",
+    content: {"pt-BR":{"address":"","phone":"","hours":"","copyright":"©Copyright Fullwood Teste 2026","disclaimer":"As informações contidas neste site são de caráter meramente informativo e não constituem oferta de valores mobiliários."}},
     social: { linkedin: "#", instagram: "#", facebook: "#" },
     legalLinks: [
       { label: "Termos e Condições", href: "/termos-e-condicoes.html" },
       { label: "Política de Privacidade", href: "/politica-de-privacidade.html" },
       { label: "Definições de Cookies", href: "/definicao-de-cookies.html" }
     ],
-    legalText: "As informações contidas neste site são de caráter meramente informativo e não constituem oferta de valores mobiliários.",
+  },
+
+  splash: {
+    enabled: false,
+    size: 'md',
+    titulo: '',
+    texto: '',
+    conteudo: '',
+    legenda: '',
+    buttons: [],
+  },
+
+  cookies: {
+    enabled: true,
+    layout: 'full',
+    theme: 'light',
+    title: 'Utilizamos cookies',
+    description: 'Usamos cookies para melhorar sua experiência.',
+    acceptLabel: 'Aceitar todos',
+    rejectLabel: 'Rejeitar',
+    showReject: true,
+    showCustomize: false,
+  },
+
+  errorPages: [],
+
+  banner: [],
+
+  supabase: {
+    url:      "https://mmhuwlpsgnvoxyuofliq.supabase.co",
+    anonKey:  "sb_publishable_BBSPbQc2kZngiK45ecfXaA_X4NANiGj",
+    portalId: "8df35d59-7b37-4134-8e68-8d8764443b62",
   },
 
 };
