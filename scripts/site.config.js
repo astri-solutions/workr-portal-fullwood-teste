@@ -36,11 +36,10 @@ export const siteConfig = {
   },
 
   nav: [
-    { id: "docs-cvm", label: "Documentos CVM", labels: {"pt-BR":"Documentos CVM"}, href: "/documentos-cvm.html", pageType: "lista", children: [] },
-    { id: "central-resultados", label: "Estatutos, Políticas e Códigos", labels: {"pt-BR":"Estatutos, Políticas e Códigos"}, href: "/central-resultados.html", pageType: "lista-agrupada", children: [] },
-    { id: "atas-assembleias", label: "Atas e Assembleias", labels: {"pt-BR":"Atas e Assembleias"}, href: "/atas-assembleias.html", pageType: "lista-agrupada", children: [] },
-    { id: "p3qvhye", label: "Demonstrações Financeiras", labels: {"pt-BR":"Demonstrações Financeiras"}, href: "/xn03fdi.html", pageType: "lista", children: [] },
+    { id: "docs-cvm", label: "Documentos CVM", labels: {"pt-BR":"Documentos CVM"}, href: "/documentos-cvm.html", pageType: "lista-agrupada", children: [] },
+    { id: "p3qvhye", label: "Demonstrações Financeiras", labels: {"pt-BR":"Demonstrações Financeiras"}, href: "/xn03fdi.html", pageType: "lista-agrupada", children: [] },
     { id: "fale-ri", label: "Fale com RI", labels: {"pt-BR":"Fale com RI"}, href: "/fale-com-ri.html", pageType: "formulario", children: [] },
+    { id: "cdrdeb966", label: "Central de Resultados", labels: {"pt-BR":"Central de Resultados"}, href: "/cdrbdb729.html", pageType: "tabela-resultados", children: [] },
   ],
 
   empresas: [
@@ -100,15 +99,15 @@ export const siteConfig = {
       "id": "b1",
       "imagem": "/assets/banner/b1-495494a2a5ea.jpg",
       "content": {
-        "pt-BR": {
-          "titulo": "Relações com Investidores",
-          "subtitulo": "Transparência e geração de valor para nossos acionistas.",
-          "cta": "Saiba mais"
-        },
         "en": {
+          "cta": "Learn more",
           "titulo": "Investor Relations",
-          "subtitulo": "Lorem ipsum",
-          "cta": "Learn more"
+          "subtitulo": "Lorem ipsum"
+        },
+        "pt-BR": {
+          "cta": "Saiba mais",
+          "titulo": "Relações com Investidores",
+          "subtitulo": "Transparência e geração de valor para nossos acionistas."
         }
       }
     }
