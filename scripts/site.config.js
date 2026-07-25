@@ -95,7 +95,24 @@ export const siteConfig = {
 
   errorPages: [],
 
-  banner: [],
+  banner: [
+    {
+      "id": "b1",
+      "imagem": "/assets/banner/b1-495494a2a5ea.jpg",
+      "content": {
+        "pt-BR": {
+          "titulo": "Relações com Investidores",
+          "subtitulo": "Transparência e geração de valor para nossos acionistas.",
+          "cta": "Saiba mais"
+        },
+        "en": {
+          "titulo": "Investor Relations",
+          "subtitulo": "Lorem ipsum",
+          "cta": "Learn more"
+        }
+      }
+    }
+  ],
 
   supabase: {
     url:      "https://mmhuwlpsgnvoxyuofliq.supabase.co",
