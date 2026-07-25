@@ -37,7 +37,6 @@ export const siteConfig = {
 
   nav: [
     { id: "docs-cvm", label: "Documentos CVM", labels: {"pt-BR":"Documentos CVM"}, href: "/documentos-cvm.html", pageType: "lista-agrupada", children: [] },
-    { id: "p3qvhye", label: "Demonstrações Financeiras", labels: {"pt-BR":"Demonstrações Financeiras"}, href: "/xn03fdi.html", pageType: "lista-agrupada", children: [] },
     { id: "fale-ri", label: "Fale com RI", labels: {"pt-BR":"Fale com RI"}, href: "/fale-com-ri.html", pageType: "formulario", children: [] },
     { id: "cdrdeb966", label: "Central de Resultados", labels: {"pt-BR":"Central de Resultados"}, href: "/cdrbdb729.html", pageType: "tabela-resultados", children: [] },
   ],
