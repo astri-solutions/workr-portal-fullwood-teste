@@ -106,7 +106,7 @@ export const siteConfig = {
         },
         "pt-BR": {
           "cta": "Saiba mais",
-          "titulo": "Relações com Investidores",
+          "titulo": "Teste title",
           "subtitulo": "Transparência e geração de valor para nossos acionistas."
         }
       }
