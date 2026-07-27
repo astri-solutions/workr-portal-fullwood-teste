@@ -115,11 +115,11 @@ function docItemHtml(d, sb, lang, primaryLang) {
     <div class="doc-list__info">
       <span class="doc-list__date">${formatDate(dateOf(d))}</span>
       <span class="doc-list__sep" aria-hidden="true">—</span>
-      <span class="doc-list__title">${title}</span>
+      <a href="${href}" class="doc-list__title doc-list__title-link" target="_blank" rel="noopener">${title}</a>
     </div>
     <div class="doc-list__actions">
       <a href="${href}" class="doc-list__link doc-list__icon" aria-label="Baixar ${title}" target="_blank" rel="noopener">
-        ${fileBadgeSvg(file.filePath ?? file.externalLink ?? '', !!file.externalLink)}
+        ${fileBadgeSvg(file.filePath ?? file.externalLink ?? '')}
       </a>
     </div>
   </li>`;
@@ -131,10 +131,12 @@ function tableRowHtml(d, sb, lang, primaryLang) {
   const title = titleOf(d, lang);
   return `<tr class="doc-table__row">
     <td class="doc-table__cell doc-table__cell--date">${formatDate(dateOf(d))}</td>
-    <td class="doc-table__cell doc-table__cell--name">${title}</td>
+    <td class="doc-table__cell doc-table__cell--name">
+      <a href="${href}" class="doc-table__title-link" target="_blank" rel="noopener">${title}</a>
+    </td>
     <td class="doc-table__cell doc-table__cell--action">
       <a href="${href}" class="doc-list__link doc-list__icon" aria-label="Baixar ${title}" target="_blank" rel="noopener">
-        ${fileBadgeSvg(file.filePath ?? file.externalLink ?? '', !!file.externalLink)}
+        ${fileBadgeSvg(file.filePath ?? file.externalLink ?? '')}
       </a>
     </td>
   </tr>`;
@@ -214,13 +216,14 @@ function renderGroupedList(list, pageId, sb, lang, primaryLang, visibleCounts, s
   if (style === 'secao') {
     return `<div class="la-sections">${renderSectionedList(groups, sb, lang, primaryLang, visibleCounts)}</div>`;
   }
-  const groupHtml = groups.map((g, idx) => {
-    const key = `group:${g.label}`;
-    const shown = Math.min(visibleCounts[key] ?? PAGE_SIZE, g.docs.length);
-    const slice = g.docs.slice(0, shown);
-    return `
-    <div class="accordion__item${idx === 0 ? ' accordion__item--open' : ''}" data-accordion-item>
-      <button class="accordion__trigger" type="button" aria-expanded="${idx === 0 ? 'true' : 'false'}">
+  // No "Carregar mais" here, unlike the other list styles below — an
+  // accordion item is already collapsed by default, so there's no need to
+  // additionally paginate what's inside it once it's opened. Every doc in
+  // the group renders; visibleCounts/PAGE_SIZE only apply to flat/tabela/
+  // secao, where everything is visible at once and needs its own limit.
+  const groupHtml = groups.map(g => `
+    <div class="accordion__item" data-accordion-item>
+      <button class="accordion__trigger" type="button" aria-expanded="false">
         <span class="accordion__label">${g.label}</span>
         <span class="accordion__icon" aria-hidden="true">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -229,28 +232,11 @@ function renderGroupedList(list, pageId, sb, lang, primaryLang, visibleCounts, s
         </span>
       </button>
       <div class="accordion__body">
-        <ul class="doc-list" role="list">${slice.map(d => docItemHtml(d, sb, lang, primaryLang)).join('')}</ul>
-        ${loadMoreHtml(key, g.docs.length, shown)}
+        <ul class="doc-list" role="list">${g.docs.map(d => docItemHtml(d, sb, lang, primaryLang)).join('')}</ul>
       </div>
-    </div>`;
-  }).join('');
+    </div>`
+  ).join('');
   return `<div class="accordion" data-accordion>${groupHtml}</div>`;
-}
-
-function bindAccordion(container) {
-  container.querySelectorAll('.accordion__trigger').forEach(trigger => {
-    trigger.addEventListener('click', () => {
-      const item = trigger.closest('.accordion__item');
-      const accordion = trigger.closest('.accordion');
-      const isOpen = item.classList.contains('accordion__item--open');
-      accordion?.querySelectorAll('.accordion__item--open').forEach(el => el.classList.remove('accordion__item--open'));
-      accordion?.querySelectorAll('.accordion__trigger').forEach(t => t.setAttribute('aria-expanded', 'false'));
-      if (!isOpen) {
-        item.classList.add('accordion__item--open');
-        trigger.setAttribute('aria-expanded', 'true');
-      }
-    });
-  });
 }
 
 /**
@@ -347,7 +333,14 @@ function renderDocumentos(entry, docs, container, sb, siteConfig) {
         render(false);
       });
     });
-    bindAccordion(container);
+    // Accordion open/close is handled by scripts/accordion.js's single
+    // document-level delegated listener — it already matches the exact
+    // .accordion__trigger/.accordion__item classes rendered here, so no
+    // per-page binding is needed. A second, directly-bound listener used to
+    // live here (bindAccordion) and fired on the SAME click as the delegated
+    // one: it would open the clicked item, then accordion.js's listener ran
+    // right after (bubbling) and read the class it had just set as "already
+    // open", closing it again — the item never stayed open.
   }
 
   render();
