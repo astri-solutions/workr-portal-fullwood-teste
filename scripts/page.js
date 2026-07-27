@@ -10,10 +10,14 @@ import { initDocumentos } from './components/documentos.js';
 import { initResultados } from './components/resultados.js';
 import { initSplash }  from './components/splash.js';
 import { initCookies } from './components/cookies.js';
+import { isPreviewMode, applyPreviewOverrides, markPreviewBanner } from './components/preview.js';
+import { applyPageHeaderImage } from './components/pageHeader.js';
+import { fetchContentIndex, filterNav, currentPageIsEmpty } from './components/contentIndex.js';
+import { initAutoRefresh } from './autoRefresh.js';
 import { applyStoredContrast } from './topbar.js';
 import { getLang, t } from './lib/i18n.js';
 import './icons.js';
-import './reveal.js';
+import { observeReveals } from './reveal.js';
 import './accordion.js';
 import './counter.js';
 import './empresa-tabs.js';
@@ -23,9 +27,15 @@ document.documentElement.lang = getLang(siteConfig);
 
 // Modo de manutenção — ligado via Painel de Controle (super_admin). Nenhum
 // outro componente é inicializado; o visitante só vê o aviso, sem
-// navegação/conteúdo carregado por baixo.
-if (siteConfig.maintenance) {
+// navegação/conteúdo carregado por baixo. Em modo preview (?preview=1), o
+// admin sempre vê a página real, mesmo com manutenção ligada.
+if (siteConfig.maintenance && !isPreviewMode()) {
   showMaintenancePage();
+} else if (isPreviewMode()) {
+  // Busca canais/footer/empresas/etc. ao vivo do Supabase (rascunho incluso)
+  // ANTES de inicializar nav/footer/etc., para que já nasçam com os dados
+  // atualizados — sem isso, a página renderizaria com o último publicado.
+  applyPreviewOverrides(siteConfig).finally(() => { boot(); markPreviewBanner(); });
 } else {
   boot();
 }
@@ -45,10 +55,25 @@ function showMaintenancePage() {
   `;
 }
 
-function boot() {
+async function boot() {
   // Reaplica alto contraste antes de qualquer render — sem isso, cada
   // navegação (site multi-página) resetava para desligado.
   applyStoredContrast();
+
+  // Quais canais têm conteúdo publicado. Precisa vir ANTES do initHeader:
+  // o header inteiro já é renderizado por JS, então esperar esta chamada
+  // custa poucos ms — e evita o menu piscar com itens que somem logo em
+  // seguida. Em preview o admin precisa enxergar tudo, inclusive o que
+  // ainda está vazio.
+  const contentIndex = isPreviewMode() ? null : await fetchContentIndex(siteConfig.supabase);
+  const visibleNav = filterNav(siteConfig.nav, contentIndex);
+
+  // Página de canal sem conteúdo: manda para o 404 em vez de exibir um
+  // "Em construção" para quem chegou pelo link direto.
+  if (currentPageIsEmpty(siteConfig.nav, contentIndex)) {
+    location.replace('/404.html');
+    return;
+  }
 
   // Injeta cores e fontes do CMS antes de qualquer outro componente
   initTheme(siteConfig);
@@ -75,8 +100,19 @@ function boot() {
 
   // Inicializa todos os componentes compartilhados
   initTopbar(siteConfig);
-  initHeader(siteConfig);
+  // Só o menu enxerga a árvore filtrada — o resto do site (matérias,
+  // documentos, atalhos do banner) continua resolvendo pela árvore
+  // completa, senão uma página escondida deixaria de encontrar o próprio
+  // conteúdo.
+  initHeader({ ...siteConfig, nav: visibleNav });
   initFooter(siteConfig);
+  applyPageHeaderImage(siteConfig);
+  // Breadcrumb → título → lede entram em sequência. Marcado aqui (e não no
+  // HTML) para valer em todas as páginas internas sem editar cada arquivo;
+  // observeReveals roda de novo porque a chamada inicial do módulo
+  // aconteceu antes deste atributo existir.
+  document.querySelector('.page-header__inner')?.setAttribute('data-reveal-stagger', '');
+  observeReveals(document);
   initSearch();
   initMaterias(siteConfig)
     .then(found => initDocumentos(siteConfig, found))
@@ -88,24 +124,125 @@ function boot() {
       // página com conteúdo cadastrado, mesmo quando ele carregava normalmente
       // logo em seguida.
       document.querySelectorAll('.page-empty').forEach(el => { el.outerHTML = emConstrucaoHTML(); });
+
+      // Content fetched above (documentos, resultados, aviso de "em
+      // construção") only exists now — mark it and hand it to the reveal
+      // observer in the same pass, so nothing can end up hidden by the
+      // reveal CSS without anything ever un-hiding it.
+      document.querySelectorAll('.doc-row, .em-construcao, .doc-group, .resultado-row')
+        .forEach(el => el.setAttribute('data-reveal', ''));
+      observeReveals(document);
     });
   initSplash(siteConfig);
   initCookies(siteConfig);
+  // Skipped in preview mode — an admin actively testing draft changes
+  // shouldn't have the tab reload out from under them.
+  if (!isPreviewMode()) initAutoRefresh();
 
-  // ── Banner hero — shortcuts e CTA dinâmicos de siteConfig.nav ─────────────────
+  // ── Banner hero — conteúdo, imagem e atalhos ──────────────────────────────────
+  // Todos os slides configurados em Personalização → Banner substituem o
+  // texto/imagem estáticos do template (título, subtítulo, CTA, fundo) —
+  // com mais de um, o hero alterna entre eles automaticamente, como o
+  // carrossel do modelo tabmenu (carousel.js), só que sem os controles de
+  // navegação (o hero aqui é uma seção única, não uma faixa dedicada).
+  const heroSlides = siteConfig.banner ?? [];
+  const heroTitleEl = document.querySelector('.home-hero__title');
+  const heroSubtitleEl = document.querySelector('.home-hero__subtitle');
+  const heroBgEl = document.getElementById('hero-bg');
+  const heroCta = document.querySelector('[data-hero-cta]');
+
+  function applyHeroSlide(slide) {
+    if (!slide) return;
+    const lang = getLang(siteConfig);
+    const primaryLang = siteConfig.languages?.[0] ?? 'pt-BR';
+    const content = slide.content?.[lang] ?? slide.content?.[primaryLang] ?? {};
+    if (heroTitleEl && content.titulo) heroTitleEl.textContent = content.titulo;
+    if (heroSubtitleEl && content.subtitulo) heroSubtitleEl.textContent = content.subtitulo;
+    if (heroBgEl && slide.imagem) heroBgEl.src = slide.imagem;
+    if (heroCta) {
+      if (slide.ctaEnabled === false) {
+        heroCta.style.display = 'none';
+      } else {
+        heroCta.style.display = '';
+        if (content.cta) heroCta.textContent = content.cta;
+        if (slide.ctaLink) {
+          heroCta.setAttribute('href', slide.ctaLink);
+        } else if (visibleNav?.length) {
+          const first = visibleNav.find(ch => ch.enabled !== false);
+          if (first) heroCta.setAttribute('href', first.href);
+        }
+      }
+    }
+  }
+
+  if (heroSlides.length > 0) {
+    let heroIndex = 0;
+    applyHeroSlide(heroSlides[0]);
+    if (heroSlides.length > 1) {
+      const HERO_ROTATE_MS = 6000;
+      const fadeTargets = [heroTitleEl, heroSubtitleEl, heroBgEl].filter(Boolean);
+      const dotsEl = document.querySelector('[data-hero-dots]');
+      let rotateTimer = null;
+
+      function fadeToSlide(index) {
+        heroIndex = ((index % heroSlides.length) + heroSlides.length) % heroSlides.length;
+        fadeTargets.forEach(el => { el.style.transition = 'opacity 0.4s ease'; el.style.opacity = '0'; });
+        setTimeout(() => {
+          applyHeroSlide(heroSlides[heroIndex]);
+          fadeTargets.forEach(el => { el.style.opacity = '1'; });
+          updateDots();
+        }, 400);
+      }
+
+      function updateDots() {
+        if (!dotsEl) return;
+        dotsEl.querySelectorAll('.carousel__dot').forEach((dot, i) => {
+          const active = i === heroIndex;
+          dot.classList.toggle('is-active', active);
+          dot.setAttribute('aria-selected', String(active));
+        });
+      }
+
+      function startRotate() {
+        rotateTimer = setInterval(() => fadeToSlide(heroIndex + 1), HERO_ROTATE_MS);
+      }
+
+      function restartRotate() {
+        clearInterval(rotateTimer);
+        startRotate();
+      }
+
+      // Bullets — sem eles, um segundo banner configurado só aparecia depois
+      // de 6s de espera (e sumia de novo a cada refresh, que sempre reinicia
+      // no slide 0), parecendo que a edição não tinha sido publicada.
+      if (dotsEl) {
+        dotsEl.innerHTML = heroSlides.map((_, i) =>
+          `<button type="button" class="carousel__dot${i === 0 ? ' is-active' : ''}" role="tab" aria-selected="${i === 0}" aria-label="Banner ${i + 1}"></button>`
+        ).join('');
+        dotsEl.querySelectorAll('.carousel__dot').forEach((dot, i) => {
+          dot.addEventListener('click', () => { fadeToSlide(i); restartRotate(); });
+        });
+      }
+
+      startRotate();
+    }
+  }
+
+  // Atalhos — até 4 páginas escolhidas em Personalização → Banner
+  // (siteConfig.home.shortcuts). Sem nenhum configurado, nada é exibido —
+  // não cai mais para o menu completo, que era confuso para quem queria só
+  // alguns atalhos ou nenhum.
+  const shortcutsNav = document.querySelector('.home-hero__shortcuts');
   const shortcutsInner = document.querySelector('[data-hero-shortcuts]');
-  if (shortcutsInner && siteConfig.nav?.length) {
-    const enabled = siteConfig.nav.filter(ch => ch.enabled !== false);
-    shortcutsInner.innerHTML = enabled.map(ch =>
+  const homeShortcuts = siteConfig.home?.shortcuts;
+  if (shortcutsInner && homeShortcuts?.length) {
+    shortcutsInner.innerHTML = homeShortcuts.map(ch =>
       `<a href="${ch.href}" class="home-hero__shortcut">
         <span class="home-hero__shortcut-label">${ch.label}</span>
       </a>`
     ).join('');
-  }
-  const heroCta = document.querySelector('[data-hero-cta]');
-  if (heroCta && siteConfig.nav?.length) {
-    const first = siteConfig.nav.find(ch => ch.enabled !== false);
-    if (first) heroCta.setAttribute('href', first.href);
+  } else if (shortcutsNav) {
+    shortcutsNav.hidden = true;
   }
 
   // Marca o link ativo no nav

@@ -23,15 +23,25 @@
   &__brand { display: flex; align-items: center; flex-shrink: 0; }
   &__logo  { height: 24px; width: auto; }
 
-  // Layouts sidebar/tabmenu já navegam pela sidebar-nav/tab-menu no desktop —
-  // o dropdown horizontal do navbar não faz sentido ali. Mas o menu mobile
-  // (hamburger + drawer com páginas e idioma) continua necessário nesses
-  // layouts, então só escondemos a apresentação de desktop.
+  // Layouts sidebar/tabmenu already navigate via sidebar-nav.js/tab-menu.js
+  // on desktop — this header dropdown would be redundant there, so it's
+  // force-hidden above the desktop breakpoint. Below it, it's still needed
+  // as those layouts' mobile hamburger drawer.
   &__nav--hidden {
     @include respond-up(desktop) { display: none !important; }
   }
 
   &__nav {
+    // Mobile: off-canvas drawer (hamburger-triggered). nav.js already wires
+    // hover-to-open for desktop and click-to-open for mobile on the same
+    // markup — only the desktop *positioning* was ever missing below, which
+    // used to leave this element with no layout at all above the desktop
+    // breakpoint: it rendered inline, unstyled, at the very end of the body
+    // (header.js appends it straight to <body>, not nested inside
+    // .site-header__inner, precisely so the navbar-blur variant's
+    // backdrop-filter — a new containing block for fixed descendants —
+    // never confines this drawer to the header's own tiny box; see the
+    // reparenting note near the bottom of initHeader()).
     @include respond-down(desktop) {
       position: fixed;
       inset: 0 0 0 auto;
@@ -101,6 +111,89 @@
 
       .nav-dropdown__link { color: rgba(255,255,255,0.75); }
       .nav-dropdown__link:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    }
+
+    // Desktop: a normal inline horizontal menu next to the logo — this is
+    // the same <nav> element (not a duplicate), reusing nav.js's existing
+    // hover-to-open wiring (`mouseenter`/`mouseleave` toggling
+    // `.nav-list__item--open`, already built for desktop, just never had
+    // matching CSS). Only reachable for portals that DON'T set
+    // `data-hide-nav` (banner layout) — sidebar/tabmenu force-hide it via
+    // `&__nav--hidden` above.
+    @include respond-up(desktop) {
+      position: static;
+      inset: auto;
+      width: auto;
+      background: transparent;
+      color: var(--color-text);
+      padding: 0;
+      transform: none;
+      transition: none;
+      z-index: auto;
+      overflow: visible;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: $spacing-5;
+
+      .nav-list {
+        flex-direction: row;
+        align-items: center;
+        gap: $spacing-5;
+      }
+
+      .nav-list__item { position: relative; }
+
+      .nav-list__trigger {
+        color: var(--color-text);
+        padding: 0;
+        border: none;
+        border-radius: 0;
+        width: auto;
+        background: none;
+        &:hover { background: none; color: var(--color-primary); }
+      }
+
+      .nav-list__chevron { filter: none; opacity: 0.6; }
+      .nav-list__trigger:hover .nav-list__chevron,
+      .nav-list__item--open > .nav-list__trigger .nav-list__chevron {
+        filter: none;
+        opacity: 1;
+      }
+
+      .nav-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        margin-top: $spacing-2;
+        min-width: 220px;
+        max-height: none;
+        background: var(--color-bg);
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        box-shadow: var(--shadow-xl, 0 8px 24px rgba(0,0,0,0.12));
+        padding: $spacing-2 0;
+        overflow: visible;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateY(4px);
+        transition: opacity 0.15s, transform 0.15s;
+      }
+
+      .nav-list__item--open .nav-dropdown {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translateY(0);
+      }
+
+      .nav-dropdown__link {
+        display: block;
+        padding: $spacing-2 $spacing-4;
+        color: var(--color-text);
+        &:hover { background: var(--color-bg-alt, rgba(0,0,0,0.04)); color: var(--color-primary); }
+      }
     }
   }
 
