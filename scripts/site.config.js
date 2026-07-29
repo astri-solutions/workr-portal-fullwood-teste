@@ -36,9 +36,10 @@ export const siteConfig = {
   },
 
   nav: [
-    { id: "docs-cvm", label: "Documentos CVM", labels: {"pt-BR":"Documentos CVM"}, href: "/documentos-cvm.html", pageType: "lista-agrupada", children: [] },
+    { id: "docs-cvm", label: "Documentos CVM", labels: {"pt-BR":"Documentos CVM"}, href: "/documentos-cvm.html", pageType: "lista-agrupada", listaAgrupadaCategories: [{"id":"Aviso aos Acionistas","label":"Aviso aos Acionistas"},{"id":"Comunicado ao Mercado","label":"Comunicado ao Mercado"},{"id":"Documentos Societários","label":"Documentos Societários"},{"id":"Fato Relevante","label":"Fato Relevante"},{"id":"Relatório de Proventos","label":"Relatório de Proventos"},{"id":"Valores Mobiliários Negociados e Detidos","label":"Valores Mobiliários Negociados e Detidos"}], children: [] },
     { id: "fale-ri", label: "Fale com RI", labels: {"pt-BR":"Fale com RI"}, href: "/fale-com-ri.html", pageType: "formulario", children: [] },
     { id: "cdrdeb966", label: "Central de Resultados", labels: {"pt-BR":"Central de Resultados"}, href: "/cdrbdb729.html", pageType: "tabela-resultados", children: [] },
+    { id: "bnv5jo6", label: "Quem Somos", labels: {"pt-BR":"Quem Somos"}, href: "/bnv5jo6.html", pageType: "show", children: [] },
   ],
 
   empresas: [
@@ -58,7 +59,8 @@ export const siteConfig = {
   restrictedNav: [],
 
   footer: {
-    variant: 'simple',
+    variant: "full",
+    model: "completo",
     email: "",
     content: {"pt-BR":{"address":"","phone":"","hours":"","copyright":"©Copyright Fullwood Teste 2026","disclaimer":"As informações contidas neste site são de caráter meramente informativo e não constituem oferta de valores mobiliários."}},
     social: { linkedin: "#", instagram: "#", facebook: "#" },
@@ -111,6 +113,11 @@ export const siteConfig = {
       }
     }
   ],
+
+  // Home hero shortcuts (Banner com navbar) — null = derive from siteConfig.nav.
+  home: {
+    shortcuts: null,
+  },
 
   supabase: {
     url:      "https://mmhuwlpsgnvoxyuofliq.supabase.co",
