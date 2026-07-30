@@ -40,10 +40,12 @@ export const siteConfig = {
     { id: "fale-ri", label: "Fale com RI", labels: {"en":"Contact Investor Relations","pt-BR":"Fale com RI"}, href: "/fale-com-ri.html", pageType: "formulario", children: [] },
     { id: "cdrdeb966", label: "Central de Resultados", labels: {"en":"Results Center","pt-BR":"Central de Resultados"}, href: "/cdrbdb729.html", pageType: "tabela-resultados", children: [] },
     { id: "bnv5jo6", label: "Quem Somos", labels: {"en":"Who We Are","pt-BR":"Quem Somos"}, href: "/bnv5jo6.html", pageType: "show", children: [] },
+    { id: "2abox0v", label: "Lista teste", labels: {"en":"Test list","pt-BR":"Lista teste"}, href: "/2abox0v.html", pageType: "lista-agrupada", listaAgrupadaStyle: "accordion", listaAgrupadaCategories: [{"id":"mk-wjwkdaa","label":"Teste","labels":{"en":"Test"}},{"id":"mk-a6agjds","label":"Teste","labels":{"en":"Test"}}], children: [] },
   ],
 
   empresas: [
-    { id: "principal-1784982293516", label: "Fullwood Galpões", short: "FG" }
+    { id: "principal-1784982293516", label: "Fullwood Galpões", short: "FG" },
+    { id: "empresa-teste-1785420256838", label: "Empresa teste", short: "ET" }
   ],
 
   header: { variant: 'tabmenu' },
