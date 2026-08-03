@@ -17,7 +17,7 @@ export const siteConfig = {
   },
 
   colors: {
-    primary:   "#5de6ff",
+    primary:   "#56dcf4",
     secondary: "#044361",
     tertiary:  "#bfdbff",
   },
@@ -61,8 +61,8 @@ export const siteConfig = {
   restrictedNav: [],
 
   footer: {
-    variant: "full",
-    model: "completo",
+    variant: "simple",
+    model: "reduzido",
     email: "",
     content: {"pt-BR":{"address":"","phone":"","hours":"","copyright":"©Copyright Fullwood Teste 2026","disclaimer":"As informações contidas neste site são de caráter meramente informativo e não constituem oferta de valores mobiliários."}},
     social: { linkedin: "#", instagram: "#", facebook: "#" },
