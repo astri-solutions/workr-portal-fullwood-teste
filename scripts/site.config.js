@@ -2,8 +2,6 @@
 // Gerado pelo Workr Lite CMS — não editar manualmente.
 export const siteConfig = {
 
-  // Ligado via Painel de Controle (super_admin) — quando true, page.js
-  // mostra só uma tela de aviso e não inicializa o resto do site.
   maintenance: false,
 
   company: {
@@ -40,6 +38,7 @@ export const siteConfig = {
     { id: "fale-ri", label: "Fale com RI", labels: {"en":"Contact Investor Relations","pt-BR":"Fale com RI"}, href: "/fale-com-ri.html", pageType: "formulario", children: [] },
     { id: "cdrdeb966", label: "Central de Resultados", labels: {"en":"Results Center","pt-BR":"Central de Resultados"}, href: "/cdrbdb729.html", pageType: "tabela-resultados", children: [] },
     { id: "2abox0v", label: "Lista teste", labels: {"en":"Test list","pt-BR":"Lista teste"}, href: "/2abox0v.html", pageType: "lista-agrupada", listaAgrupadaStyle: "accordion", listaAgrupadaCategories: [{"id":"mk-wjwkdaa","label":"Teste","labels":{"en":"Test"}},{"id":"mk-a6agjds","label":"Teste","labels":{"en":"Test"}},{"id":"mk-l6obbj5","label":"Lista teste"},{"id":"mk-nt4dl3z","label":"Valores Mobiliários Negociados e Detidos"}], children: [] },
+    { id: "w75bpfc", label: "Quem Somos", labels: {"en":"About","pt-BR":"Quem Somos"}, href: "/w75bpfc.html", pageType: "show", children: [] },
   ],
 
   empresas: [
@@ -60,11 +59,12 @@ export const siteConfig = {
   restrictedNav: [],
 
   footer: {
-    variant: "full",
-    model: "completo",
-    email: "",
-    content: {"pt-BR":{"address":"","phone":"","hours":"","copyright":"©Copyright Fullwood Teste 2026","disclaimer":"As informações contidas neste site são de caráter meramente informativo e não constituem oferta de valores mobiliários."}},
-    social: { linkedin: "#", instagram: "#", facebook: "#" },
+    variant: "simple",
+    model: "reduzido",
+    email: "workrlite@astri.com",
+    content: {"pt-BR":{"hours":"Segunda a sexta, das 08h às 18h, exceto feriados.","phone":"(11) 1234-5678","address":"Av. Brigadeiro Faria Lima, 2.277, 17º andar — São Paulo/SP, CEP 01452-000","copyright":"©Copyright Workr Lite -  2026","disclaimer":"As informações contidas neste site são de caráter meramente informativo e não constituem oferta de valores mobiliários."}},
+    social: { linkedin: "https://www.linkedin.com/company/astri-solutions/", instagram: "#", facebook: "#" },
+    socials: [ { platform: "LinkedIn", url: "https://www.linkedin.com/company/astri-solutions/" } ],
     legalLinks: [
       { label: "Termos e Condições", href: "/termos-e-condicoes.html" },
       { label: "Política de Privacidade", href: "/politica-de-privacidade.html" },
@@ -115,7 +115,6 @@ export const siteConfig = {
     }
   ],
 
-  // Home hero shortcuts (Banner com navbar) — null = derive from siteConfig.nav.
   home: {
     shortcuts: null,
   },
